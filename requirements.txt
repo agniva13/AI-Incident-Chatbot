@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+sentence-transformers
+scikit-learn
+openaistreamlit
+pandas
+numpy
+sentence-transformers
+scikit-learn
+openai
