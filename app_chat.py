@@ -88,7 +88,7 @@ SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 # The original UI and voice recorder continue below unchanged.
 
 
-prompt = st.chat_input("Describe the incident...")
+#prompt = st.chat_input("Describe the #incident...")
 # inject_voice_recorder()
 st.title("🔧 AI Incident Chatbot")
 # ====================== KNOWLEDGE BASE ======================
@@ -321,7 +321,7 @@ for message in st.session_state.messages:
 
 # User Input
 prompt = st.chat_input("Describe the incident...")
-inject_voice_recorder()
+#inject_voice_recorder()
 
 if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
