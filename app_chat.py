@@ -88,41 +88,8 @@ SARVAM_API_KEY = os.getenv("SARVAM_API_KEY", "")
 # The original UI and voice recorder continue below unchanged.
 
 
-def inject_voice_recorder():
-    """Inject a mic button into the chat input (browser speech-to-text)."""
-    st.html(f"""
-        <div id="voice-recorder-anchor" style="display:none"></div>
-        <script>
-        (function() {{
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            function setTextareaValue(textarea, value) {{
-                const setter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set;
-                setter.call(textarea, value);
-                textarea.dispatchEvent(new Event("input", {{ bubbles: true }}));
-                textarea.dispatchEvent(new Event("change", {{ bubbles: true }}));
-            }}
-            function attachVoiceRecorder() {{
-                const chatInput = document.querySelector('[data-testid="stChatInput"]');
-                if (!chatInput || chatInput.querySelector('.voice-mic-btn')) return;
-                const textarea = chatInput.querySelector('textarea');
-                if (!textarea) return;
-                const micBtn = document.createElement('button');
-                micBtn.type = 'button'; micBtn.className = 'voice-mic-btn'; micBtn.textContent = '🎙';
-                micBtn.title = 'Voice input';
-                const submitBtn = chatInput.querySelector('[data-testid="stChatInputSubmitButton"]');
-                if (submitBtn && submitBtn.parentElement) submitBtn.parentElement.insertBefore(micBtn, submitBtn);
-                if (!SpeechRecognition) {{ micBtn.disabled = true; return; }}
-                const recognition = new SpeechRecognition(); recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'en-US';
-                micBtn.onclick = function() {{ micBtn.classList.add('listening'); recognition.start(); }};
-                recognition.onresult = function(event) {{ let text = ''; for (let i=0;i<event.results.length;i++) text += event.results[i][0].transcript; setTextareaValue(textarea, text.trim()); }};
-                recognition.onend = function() {{ micBtn.classList.remove('listening'); }};
-            }}
-            attachVoiceRecorder();
-            new MutationObserver(attachVoiceRecorder).observe(document.body, {{ childList:true, subtree:true }});
-        }})();
-        </script>
-        <!-- voice-recorder-{random.random()} -->
-    """, unsafe_allow_javascript=True)
+prompt = st.chat_input("Describe the incident...")
+# inject_voice_recorder()
 st.title("🔧 AI Incident Chatbot")
 # ====================== KNOWLEDGE BASE ======================
 @st.cache_resource
