@@ -4,3 +4,4 @@ numpy
 scikit-learn
 openai
 sentence_transformers
+datasets
