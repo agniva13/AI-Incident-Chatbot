@@ -92,15 +92,87 @@ st.title("🔧 AI Incident Chatbot")
 # ====================== KNOWLEDGE BASE ======================
 @st.cache_resource
 def load_knowledge():
-    ds = load_dataset("6StringNinja/synthetic-servicenow-incidents")
+    servicenow_ds = load_dataset(
+    "6StringNinja/synthetic-servicenow-incidents"
+)
 
-# Get the training data
-    df = ds["train"].to_pandas()
+    servicenow_df = servicenow_ds["train"].to_pandas()
 
-# Create dictionary
+    servicenow_data = pd.DataFrame({
+    "problem_description": servicenow_df["description"],
+    "resolution": servicenow_df["resolution"]
+})
+
+
+# ============================================================
+# 2. LOAD DEVOPS INCIDENT RESPONSE
+# ============================================================
+
+    devops_ds = load_dataset(
+    "Snaseem2026/devops-incident-response"
+)
+
+    devops_df = devops_ds["train"].to_pandas()
+
+    devops_data = pd.DataFrame({
+    "problem_description": devops_df["description"],
+    "resolution": devops_df["resolution_steps"]
+})
+
+
+# ============================================================
+# 3. COMBINE BOTH DATASETS
+# ========================================================
+    combined_df = pd.concat(
+    [servicenow_data, devops_data],
+    ignore_index=True
+)
+
+
+# ============================================================
+# 4. CLEAN THE DATA
+# ============================================================
+
+    combined_df["problem_description"] = (
+    combined_df["problem_description"]
+    .fillna("")
+    .astype(str)
+    .str.strip()
+)
+
+    combined_df["resolution"] = (
+    combined_df["resolution"]
+    .fillna("")
+    .astype(str)
+    .str.strip()
+)
+
+
+# Remove rows where either field is empty
+
+    combined_df = combined_df[
+    (combined_df["problem_description"] != "") &
+     (combined_df["resolution"] != "")
+]
+
+
+# Remove duplicate problem-resolution pairs
+
+    combined_df = combined_df.drop_duplicates(
+    subset=["problem_description", "resolution"]
+).reset_index(drop=True)
+
+
+# ============================================================
+# 5. CREATE THE DICTIONARY
+# ============================================================
+
     data = {
-    "problem_description": df["description"].fillna("").astype(str).tolist(),
-    "resolution": df["resolution"].fillna("").astype(str).tolist()
+    "problem_description":
+        combined_df["problem_description"].tolist(),
+
+    "resolution":
+        combined_df["resolution"].tolist()
 }
     df = pd.DataFrame(data)
     model = SentenceTransformer('all-MiniLM-L6-v2')
